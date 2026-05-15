@@ -1,32 +1,47 @@
 name: 執行新聞爬蟲
 
 on:
-  workflow_dispatch: # 這是手動按鈕開關
+  workflow_dispatch:
+    inputs:
+      start_time:
+        description: '民國格式(11位): 11505152100 (留白則自動紀錄)'
+        required: false
+        default: ''
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: 1. 複製程式碼
+      - name: 1. 檢出程式碼
         uses: actions/checkout@v3
 
-      - name: 2. 設定 Python 環境
+      - name: 2. 設定 Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: 3. 安裝 Chrome 瀏覽器 (Selenium 專用)
+      - name: 3. 安裝 Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: 4. 安裝必要套件
+      - name: 4. 安裝套件
         run: pip install -r requirements.txt
 
-      - name: 5. 執行爬蟲程式
-        run: python news_bot.py
+      - name: 5. 執行爬蟲
+        run: python news_bot.py "${{ github.event.inputs.start_time }}"
 
-      - name: 6. 儲存新聞結果 (HTML)
+      - name: 6. 更新時間紀錄至 GitHub
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add last_run_time.txt
+          git commit -m "Auto-update history time" || echo "No changes"
+          git push
+
+      - name: 7. 上傳 HTML 結果
         uses: actions/upload-artifact@v4
         with:
           name: news-report
