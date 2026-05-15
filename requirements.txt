@@ -1,0 +1,6 @@
+requests
+beautifulsoup4
+feedparser
+selenium
+webdriver-manager
+urllib3
