@@ -33,16 +33,10 @@ jobs:
       - name: 5. 執行爬蟲
         run: python news_bot.py "${{ github.event.inputs.start_time }}"
 
-      - name: 6. 更新時間紀錄至 GitHub
+      - name: 6. 更新時間紀錄與網頁至 GitHub
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add last_run_time.txt
-          git commit -m "Auto-update history time" || echo "No changes"
+          git add last_run_time.txt index.html
+          git commit -m "自動更新新聞網頁與時間紀錄" || echo "無變更需要提交"
           git push
-
-      - name: 7. 上傳 HTML 結果
-        uses: actions/upload-artifact@v4
-        with:
-          name: news-report
-          path: index.html
