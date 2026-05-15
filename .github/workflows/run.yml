@@ -1,0 +1,33 @@
+name: 執行新聞爬蟲
+
+on:
+  workflow_dispatch: # 這是手動按鈕開關
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 複製程式碼
+        uses: actions/checkout@v3
+
+      - name: 2. 設定 Python 環境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 3. 安裝 Chrome 瀏覽器 (Selenium 專用)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: 4. 安裝必要套件
+        run: pip install -r requirements.txt
+
+      - name: 5. 執行爬蟲程式
+        run: python news_bot.py
+
+      - name: 6. 儲存新聞結果 (HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: news-report
+          path: index.html
